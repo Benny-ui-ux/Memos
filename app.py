@@ -5,7 +5,7 @@ from datetime import timedelta
 import os
 
 app = Flask(__name__)
-load_dotenv() 
+load_dotenv()  
 app.secret_key = os.getenv('FLASK_SECRET_KEY', os.urandom(24))
 app.permanent_session_lifetime = timedelta(minutes=30)
 app.config['SESSION_COOKIE_PATH'] = '/'
@@ -188,6 +188,20 @@ def delete_note(note_id):
         flash(f'Error deleting Note: {str(e)}', 'danger')
     return redirect(url_for('notes'))
 
+
+@app.route('/delete_completed_memo/<int:memo_id>', methods=['POST'])
+def delete_completed_memo(memo_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    try:
+        db = get_db()
+        db.execute('DELETE FROM completed_memos WHERE id = ?', (memo_id,))
+        db.commit()
+        flash('Memo deleted successfully!', 'success')
+    except Exception as e:
+        flash(f'Error deleting memo: {str(e)}', 'danger')
+    return redirect(url_for('completed_jobs'))
+
 @app.route('/journal')
 def journal():
     if not session.get('logged_in'):
@@ -195,7 +209,7 @@ def journal():
     
 
     conn = get_db()
-    entry = conn.execute('SELECT * FROM journal').fetchall()
+    entry = conn.execute('SELECT * FROM journal ORDER BY created_at DESC').fetchall()
 
     return render_template('journal.html', journal=entry)
 
@@ -229,4 +243,3 @@ def delete_journal(entry_id):
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
-

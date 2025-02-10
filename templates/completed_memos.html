@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Completed Memos</title>
     <style>
-        /* General Body Styling */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -35,26 +34,7 @@
             color: #333;
         }
 
-        /* Form Styling */
-        .form-label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            resize: none;
-            overflow: hidden;
-        }
-
-        /* Reusable Button Styling */
+        /* Button Styling */
         .btn {
             display: inline-block;
             padding: 10px 20px;
@@ -63,7 +43,8 @@
             border-radius: 5px;
             cursor: pointer;
             text-align: center;
-            backkground-color: blue;
+            background-color: blue;
+            color: white;
         }
 
         .btn:hover {
@@ -72,24 +53,19 @@
 
         .btn-delete {
             background-color: #e74c3c;
+            color: white;
         }
 
-        .btn-complete {
+        .btn-back {
             background-color: #27ae60;
-	    display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
+            display: inline-block;
+            padding: 10px 15px;
+            font-size: 14px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             text-align: center;
-            color: blue;
-
-        }
-
-        .btn-back {
-            margin-top: 20px;
-            background-color: #3498db;
+            color: white;
             text-decoration: none;
         }
 
@@ -109,14 +85,15 @@
             margin: 0;
             font-size: 16px;
             color: #333;
-	    white-space: pre-wrap;
-    	    word-wrap: break-word;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
         .actions {
             display: flex;
             gap: 10px;
         }
+
     </style>
 </head>
 <body>
@@ -126,16 +103,27 @@
         <h1>Completed Memos</h1>
     </div>
 
-    {% for memo in completed_memos %}
-    <div class="memo-card">
-        <p><strong>Memo:</strong> {{ memo[1] }}</p>
-        <p><strong>Completed At:</strong> {{ memo[2] }}</p>
-    </div>
-    {% endfor %}
+    {% if completed_memos %}
+        {% for memo in completed_memos %}
+        <div class="memo-card">
+            <p><strong>Memo:</strong> {{ memo[1] }}</p>
+            <p><strong>Completed At:</strong> {{ memo[2] }}</p>
 
+        
+            <div class="actions">
+                <form action="{{ url_for('delete_completed_memo', memo_id=memo[0]) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-delete" aria-label="Delete memo">☓</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No completed memos found.</p>
+    {% endif %}
+
+    
     <a href="{{ url_for('index') }}" class="btn-back">Back to Open Memos</a>
 </div>
 
 </body>
 </html>
-
