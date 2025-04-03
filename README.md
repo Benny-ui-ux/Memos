@@ -23,7 +23,7 @@ Added Javascript/html-typing compatibility for better functionality:
 
 -Javacript logic extends the form the more lines you make.
 
--Wrap highlighted text in <code> tags by highlighting (or ctrl + a) and then hitting (ctrl + ') for easy code tags (More hotkeys coming soon!)
+-Wrap highlighted text in "code" tags by highlighting (or ctrl + a) and then hitting (ctrl + ') for easy code tags (More hotkeys coming soon!)
 
 
 
