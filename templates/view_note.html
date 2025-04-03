@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}{{ note.name }} - Note{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 70px;">
+    <h1 class="text-center">{{ note.name }}</h1>
+    <p>{{ note.note | safe }}</p>
+</div>
+{% endblock %}

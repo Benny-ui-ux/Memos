@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}{{ entry.name }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 70px;">
+    <h1 class="text-center">{{ entry.name }}</h1>
+    <p>{{ entry.entry | safe }}</p>
+</div>
+{% endblock %}

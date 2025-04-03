@@ -1,232 +1,98 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Memo</title>
-    <style>
-       /* Reset and General Styles */
-       * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
+{% extends "base.html" %}
 
-        /* Navbar Styling */
-        .navbar {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #222;
-            padding: 15px 20px;
-            color: white;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
-        .navbar .logo {
-            font-size: 1.8em;
-            font-weight: bold;
-        }
-        .nav-links {
-            list-style: none;
-            display: flex;
-        }
-        .nav-links li {
-            margin: 0 15px;
-        }
-        .nav-links a {
-            text-decoration: none;
-            color: white;
-            transition: 0.3s;
-        }
-        .nav-links a:hover {
-            color: #ff9800;
-        }
-        .hamburger {
-            display: none;
-            font-size: 1.8em;
-            cursor: pointer;
-        }
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-                flex-direction: column;
-                width: 100%;
-                position: absolute;
-                top: 60px;
-                left: 0;
-                background: #222;
-                text-align: center;
-                padding: 10px 0;
-            }
-            .nav-links.active {
-                display: flex;
-            }
-            .hamburger {
-                display: block;
-            }
-        }
+{% block title %}Notes{% endblock %}
 
-        /* Page Layout */
-        .container {
-            max-width: 800px;
-            margin: 100px auto 30px;
-            padding: 20px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            font-size: 26px;
-            color: #333;
-        }
-
-        /* Form Styling */
-        .form-label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-            resize: none;
-        }
-
-        /* Button Styling */
-        .btn {
-            display: inline-block;
-            padding: 12px 20px;
-            font-size: 14px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.3s;
-            text-align: center;
-        }
-        .btn:hover {
-            opacity: 0.9;
-        }
-        .btn-delete {
-            background-color: #e74c3c;
-            color: white;
-        }
-        .btn-complete {
-            background-color: #27ae60;
-            color: white;
-        }
-        .btn-back {
-            background-color: #2980b9;
-            color: white;
-        }
-
-        /* Memo Card Styling */
-        .memo-card {
-            background: #fff;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .memo-card p {
-            font-size: 16px;
-            color: #333;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-        .actions {
-            display: flex;
-            gap: 10px;
-        }
-        .btn-wrapper {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-    </style>
-
-</head>
-<body>
-    <nav class="navbar">
-        <div class="logo">MyLogo</div>
-        <ul class="nav-links">
-            <li><a href="{{ url_for('index') }}">Memos</a></li>
-            <li><a href="{{ url_for('journal') }}">Journal</a></li>
-            <li><a href="{{ url_for('notes') }}">Notes</a></li>
-        </ul>
-        <div class="hamburger" onclick="toggleMenu()">&#9776;</div>
-    </nav>
-    <script>
-        function toggleMenu() {
-            document.querySelector('.nav-links').classList.toggle('active');
-        }
-    </script>
-    <div class="container">
-        <h1>New Memo</h1>
-        <form action="{{ url_for('submit_note') }}" method="POST">
-            <div class="mb-3">
-                <label for="note" class="form-label">New Note</label>
-                <textarea id="note" name="note" class="form-control" required></textarea>
-            </div>
-
-            <input type="submit" value="Submit" class="btn btn-primary">
-        </form>
-    </div>
-
-    <div class="container">
-        <div class="header">
-            <h1>Notes</h1>
+{% block content %}
+<div class="container">
+    <h1 class="text-center">New Note</h1>
+    <form action="{{ url_for('submit_note') }}" method="POST">
+        <div class="mb-3">
+            <label for="name" class="form-label">Note Name</label>
+            <input type="text" id="name" name="name" class="form-control" required>
         </div>
+        <div class="mb-3">
+            <label for="note" class="form-label">Note Content</label>
+            <textarea id="note" name="note" class="form-control" required></textarea>
+        </div>
+        <input type="submit" value="Submit" class="btn btn-primary">
+    </form>
+</div>
 
+<div class="container mt-4">
+    <h2 class="text-center">Notes</h2>
+    <div class="memo-grid">
         {% for note in notes %}
         <div class="memo-card">
-            <p><strong>Memo:</strong> {{ note[1] }}</p>
-            <div class="actions">
-                <form action="{{ url_for('delete_note', note_id=note[0]) }}" method="POST" style="display:inline;">
-                    <button type="submit" class="btn btn-delete" aria-label="Delete Note">X</button>
+            <a href="{{ url_for('view_note', slug=note.slug) }}">
+                <p><strong>Title:</strong> {{ note.name | safe }}</p>
+            </a>
+            <div class="memo-content">{{ note.note | safe }}</div>
+            <div class="d-flex justify-content-between mt-2">
+                <form action="{{ url_for('delete_note', slug=note.slug) }}" method="POST">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                 </form>
-                
-                </form>
+                <a href="{{ url_for('edit_note', slug=note.slug) }}" class="btn btn-warning btn-sm">Edit</a>
             </div>
         </div>
         {% endfor %}
+    </div>
+</div>
+{% endblock %}
 
-        
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const textarea = document.getElementById('note');
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const textarea = document.getElementById('note');
 
-            textarea.addEventListener('input', function () {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
-            });
-        });
-    </script>
-</body>
-</html>
+  
+    textarea.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+    });
 
+    const formControls = document.createElement('div');
+    formControls.className = 'form-controls';
+    formControls.style.marginTop = '10px';
+    formControls.style.marginBottom = '10px';
+
+    const codeButton = document.createElement('button');
+    codeButton.type = 'button';
+    codeButton.className = 'btn';
+    codeButton.style.backgroundColor = '#2c3e50';
+    codeButton.style.color = 'white';
+    codeButton.style.marginRight = '5px';
+    codeButton.innerHTML = '&lt;code&gt;';
+    codeButton.title = 'Wrap selected text in code tags';
+
+    codeButton.addEventListener('click', function (e) {
+        e.preventDefault();
+        let start = textarea.selectionStart;
+        let end = textarea.selectionEnd;
+        let selectedText = textarea.value.substring(start, end);
+
+        if (selectedText) {
+            let wrappedText = `<code>${selectedText}</code>`;
+            textarea.setRangeText(wrappedText, start, end, "end");
+        }
+    });
+
+    formControls.appendChild(codeButton);
+    textarea.parentNode.insertBefore(formControls, textarea.nextSibling);
+
+  
+    document.addEventListener('keydown', function (event) {
+        if ((event.ctrlKey || event.metaKey) && event.key === "c") {
+            event.preventDefault();
+            let start = textarea.selectionStart;
+            let end = textarea.selectionEnd;
+            let selectedText = textarea.value.substring(start, end);
+
+            if (selectedText) {
+                let wrappedText = `<code>${selectedText}</code>`;
+                textarea.setRangeText(wrappedText, start, end, "end");
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,129 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Completed Memos</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
+{% extends "base.html" %}
 
-        /* Container Styling */
-        .container {
-            max-width: 800px;
-            margin: 0 auto 30px;
-            padding: 20px;
-            background: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
+{% block title %}Completed Memos{% endblock %}
 
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            margin: 0 0 20px;
-            font-size: 24px;
-            color: #333;
-        }
-
-        /* Button Styling */
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-align: center;
-            background-color: blue;
-            color: white;
-        }
-
-        .btn:hover {
-            opacity: 0.9;
-        }
-
-        .btn-delete {
-            background-color: #e74c3c;
-            color: white;
-        }
-
-        .btn-back {
-            background-color: #27ae60;
-            display: inline-block;
-            padding: 10px 15px;
-            font-size: 14px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-align: center;
-            color: white;
-            text-decoration: none;
-        }
-
-        /* Memo Card Styling */
-        .memo-card {
-            background: #fff;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .memo-card p {
-            margin: 0;
-            font-size: 16px;
-            color: #333;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-        }
-
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <div class="header">
-        <h1>Completed Memos</h1>
-    </div>
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Completed Memos</h1>
 
     {% if completed_memos %}
+    <div class="memo-grid">
         {% for memo in completed_memos %}
         <div class="memo-card">
-            <p><strong>Memo:</strong> {{ memo[1] }}</p>
-            <p><strong>Completed At:</strong> {{ memo[2] }}</p>
-
-        
-            <div class="actions">
-                <form action="{{ url_for('delete_completed_memo', memo_id=memo[0]) }}" method="POST" style="display:inline;">
-                    <button type="submit" class="btn btn-delete" aria-label="Delete memo">☓</button>
+            <p><strong>Memo:</strong> {{ memo.memo }}</p>
+            <p><strong>Completed At:</strong> {{ memo.completed_at }}</p>
+            <div class="d-flex justify-content-end">
+                <form action="{{ url_for('delete_completed_memo', memo_id=memo.id) }}" method="POST">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                 </form>
             </div>
         </div>
         {% endfor %}
+    </div>
     {% else %}
-        <p>No completed memos found.</p>
+    <p class="text-center">No completed memos found.</p>
     {% endif %}
 
-    
-    <a href="{{ url_for('index') }}" class="btn-back">Back to Open Memos</a>
+    <div class="text-center mt-4">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Open Memos</a>
+    </div>
 </div>
-
-</body>
-</html>
+{% endblock %}
