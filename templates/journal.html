@@ -1,37 +1,55 @@
 {% extends "base.html" %}
 
+
 {% block title %}Journal{% endblock %}
 
+
 {% block content %}
-<div class="container">
-    <h1 class="text-center">New Journal Entry</h1>
-    <form action="{{ url_for('submit_journal') }}" method="POST">
-        <div class="mb-3">
-            <label for="name" class="form-label">Entry Name</label>
-            <input type="text" id="name" name="name" class="form-control" required>
+<div class="max-w-4xl mx-auto py-10 px-4">
+    <h1 class="text-3xl font-bold text-center text-orange-400 mb-8 tracking-tight">New Journal Entry</h1>
+    <form action="{{ url_for('submit_journal') }}" method="POST" class="space-y-8">
+        <div class="relative">
+            <input type="text" id="name" name="name" required
+                class="peer w-full pt-6 pb-2 px-3 rounded-lg bg-zinc-900 text-white border border-orange-400 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-200">
+            <label for="name"
+                class="absolute left-3 top-2 text-sm text-orange-300 transition-all duration-200 peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-orange-500 peer-focus:top-2 peer-focus:text-sm peer-focus:text-orange-300">
+                Entry Name
+            </label>
         </div>
-        <div class="mb-3">
-            <label for="journal" class="form-label">Entry Content</label>
-            <textarea id="journal" name="journal" class="form-control" required></textarea>
+
+        <div class="relative">
+            <textarea id="journal" name="journal" required rows="4" placeholder=" "
+                class="peer w-full pt-6 pb-2 px-3 rounded-lg bg-zinc-900 text-white border border-orange-400 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none transition-all duration-200"></textarea>
+            <label for="journal"
+                class="absolute left-3 top-2 text-sm text-orange-300 transition-all duration-200 peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-orange-500 peer-focus:top-2 peer-focus:text-sm peer-focus:text-orange-300">
+                Entry Content
+            </label>
         </div>
-        <input type="submit" value="Submit" class="btn btn-primary">
+
+        <div>
+            <input type="submit" value="Submit"
+                class="bg-orange-500 hover:bg-orange-600 active:scale-95 transition-transform duration-150 text-white font-semibold py-3 px-6 rounded-md cursor-pointer shadow-lg">
+        </div>
     </form>
 </div>
 
-<div class="container mt-4">
-    <h2 class="text-center">Journal Entries</h2>
-    <div class="memo-grid">
+<div class="max-w-6xl mx-auto mt-10 px-4">
+    <h2 class="text-2xl font-bold text-center text-orange-400 mb-6 tracking-tight">Journal Entries</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for entry in journal %}
-        <div class="memo-card">
-            <a href="{{ url_for('view_journal', slug=entry.slug) }}">
-                <p><strong>Entry:</strong> {{ entry.name }}</p>
+        <div class="backdrop-blur-sm bg-white/5 border border-zinc-800 rounded-xl p-5 transition transform hover:scale-105 duration-200 text-white shadow-lg">
+            <a href="{{ url_for('view_journal', slug=entry.slug) }}"
+                class="block text-lg font-semibold text-orange-400 hover:underline mb-2">
+                Entry: {{ entry.name }}
             </a>
-            <div class="memo-content">{{ entry.entry | safe }}</div>
-            <div class="d-flex justify-content-between mt-2">
+            <div class="memo-content hidden">{{ entry.entry }}</div>
+            <div class="flex justify-between mt-4">
                 <form action="{{ url_for('delete_journal', slug=entry.slug) }}" method="POST">
-                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    <button type="submit"
+                        class="bg-red-600 hover:bg-red-700 active:scale-95 transition-transform duration-150 text-white text-sm font-semibold py-1 px-3 rounded-md">Delete</button>
                 </form>
-                <a href="{{ url_for('edit_journal', slug=entry.slug) }}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{{ url_for('edit_journal', slug=entry.slug) }}"
+                    class="bg-yellow-500 hover:bg-yellow-600 active:scale-95 transition-transform duration-150 text-white text-sm font-semibold py-1 px-3 rounded-md">Edit</a>
             </div>
         </div>
         {% endfor %}
@@ -43,56 +61,16 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const textarea = document.getElementById('journal');
-
-   
-    textarea.addEventListener('input', function () {
-        this.style.height = 'auto';
-        this.style.height = this.scrollHeight + 'px';
-    });
-
-    
-    const formControls = document.createElement('div');
-    formControls.className = 'form-controls';
-    formControls.style.marginTop = '10px';
-    formControls.style.marginBottom = '10px';
-
-    const codeButton = document.createElement('button');
-    codeButton.type = 'button';
-    codeButton.className = 'btn';
-    codeButton.style.backgroundColor = '#2c3e50';
-    codeButton.style.color = 'white';
-    codeButton.style.marginRight = '5px';
-    codeButton.innerHTML = '&lt;code&gt;';
-    codeButton.title = 'Wrap selected text in <code> tags';
-
-    codeButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        let start = textarea.selectionStart;
-        let end = textarea.selectionEnd;
-        let selectedText = textarea.value.substring(start, end);
-
-        if (selectedText) {
-            let wrappedText = `<code>${selectedText}</code>`;
-            textarea.setRangeText(wrappedText, start, end, "end");
-        }
-    });
-
-    formControls.appendChild(codeButton);
-    textarea.parentNode.insertBefore(formControls, textarea.nextSibling);
-
-    document.addEventListener('keydown', function (event) {
-        if ((event.ctrlKey || event.metaKey) && event.key === "`") {
-            event.preventDefault();
-            let start = textarea.selectionStart;
-            let end = textarea.selectionEnd;
-            let selectedText = textarea.value.substring(start, end);
-
-            if (selectedText) {
-                let wrappedText = `<code>${selectedText}</code>`;
-                textarea.setRangeText(wrappedText, start, end, "end");
-            }
-        }
-    });
+    if (textarea) {
+        textarea.style.overflow = 'hidden';
+        textarea.style.resize = 'none';
+        const resize = () => {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        };
+        resize();
+        textarea.addEventListener('input', resize);
+    }
 });
 </script>
 {% endblock %}

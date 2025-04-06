@@ -3,8 +3,10 @@
 {% block title %}{{ note.name }} - Note{% endblock %}
 
 {% block content %}
-<div class="container" style="padding-top: 70px;">
-    <h1 class="text-center">{{ note.name }}</h1>
-    <p>{{ note.note | safe }}</p>
+<div class="max-w-3xl mx-auto pt-24 px-4 text-center">
+  <h1 class="text-3xl font-bold text-orange-500 dark:text-orange-400 mb-6">{{ note.name }}</h1>
+  <div class="text-orange-400 whitespace-pre-line text-lg leading-relaxed">
+    {{ note.note | nl2br | safe }}
+  </div>
 </div>
 {% endblock %}

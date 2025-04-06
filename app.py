@@ -1,7 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, g
+from flask import Flask, render_template, request, redirect, url_for, session, flash 
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
-import sqlite3
 from datetime import datetime, timedelta
 import os
 import requests
@@ -13,7 +12,7 @@ from slugify import slugify
 import logging
 
 app = Flask(__name__)
-load_dotenv()  
+load_dotenv()  # Ensure environment variables are loaded
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 app.config['SESSION_COOKIE_PATH'] = '/'
 
@@ -40,7 +39,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("SET_LOGGING_PATH_HERE", mode='a'),  
+        logging.FileHandler("/var/www/memos/memos.log", mode='a'),  # Adjust path as needed
     ]
 )
 logger = logging.getLogger(__name__)
@@ -63,8 +62,8 @@ class CompletedMemo(db.Model):
 class Note(db.Model):
     __tablename__ = "notes"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(255), nullable=False, unique=True)  
-    slug = db.Column(db.String(255), nullable=False, unique=True)  
+    name = db.Column(db.String(255), nullable=False, unique=True)  # Note title
+    slug = db.Column(db.String(255), nullable=False, unique=True)  # URL-friendly identifier
     note = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -83,8 +82,8 @@ class Note(db.Model):
 class Journal(db.Model):
     __tablename__ = "journal"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(255), nullable=False, unique=True) 
-    slug = db.Column(db.String(255), nullable=False, unique=True)  
+    name = db.Column(db.String(255), nullable=False, unique=True)  # Note title
+    slug = db.Column(db.String(255), nullable=False, unique=True)  # URL-friendly identifier
     entry = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -119,23 +118,25 @@ def check_and_send_reminders():
         logger.info(f"Checking reminders at {now}")
         time_threshold = now - timedelta(hours=24)
 
+        # Use two separate queries for clarity
+        # For initial reminders - strict time comparison
         initial_reminders = Memo.query.filter(
             db.and_(
-                Memo.reminder_time <= now,  
-                Memo.reminder_sent_count == 0  
+                Memo.reminder_time <= now,  # Time has passed or is now
+                Memo.reminder_sent_count == 0  # Never sent
             )
         ).all()
 
-        
+        # For follow-up reminders - check 24-hour threshold
         followup_reminders = Memo.query.filter(
             db.and_(
-                Memo.reminder_sent_count > 0,  
-                Memo.reminder_sent_count < MAX_REMINDERS,  
-                Memo.last_reminded_at <= time_threshold  
+                Memo.reminder_sent_count > 0,  # At least one reminder sent
+                Memo.reminder_sent_count < MAX_REMINDERS,  # Not reached max
+                Memo.last_reminded_at <= time_threshold  # 24 hours passed
             )
         ).all()
 
-      
+        # Log information about eligible reminders
         for memo in initial_reminders:
             logger.info(f"Initial reminder eligible: ID={memo.id}, time={memo.reminder_time}, current_time={now}")
 
@@ -146,6 +147,7 @@ def check_and_send_reminders():
             logger.info("No reminders to send")
             return
 
+        # Process the reminders
         tasks = []
         with ThreadPoolExecutor(max_workers=10) as executor:
             for memo in reminders:
@@ -212,14 +214,11 @@ def submit():
 
         if reminder_time_str:
             # Convert string to datetime and explicitly make it UTC
-
             local_time = datetime.strptime(reminder_time_str, "%Y-%m-%dT%H:%M")
-
             # Convert to UTC if the input is in local time
             # This assumes your form input is in your local timezone
             # You'll need to adjust the offset based on your timezone
-
-            utc_offset = timedelta(hours=5) 
+            utc_offset = timedelta(hours=5)  # Adjust this based on your timezone difference from UTC
             reminder_time = local_time + utc_offset
             
             logger.info(f"Setting reminder for local time: {local_time}, UTC time: {reminder_time}")
@@ -380,15 +379,55 @@ def edit_note(slug):
     note = Note.query.filter_by(slug=slug).first_or_404()
 
     if request.method == 'POST':
-        new_note_text = request.form['note']
-        if note:
-            note.note = new_note_text
-            note.generate_slug()  
+        new_name = request.form.get('name')
+        new_text = request.form.get('note')
+
+        if new_name and new_name != note.name:
+            note.name = new_name
+            note.slug = Note.generate_unique_slug(new_name)
+
+        note.note = new_text
+
+        try:
             db.session.commit()
             flash('Note updated successfully!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating note: {str(e)}', 'danger')
+
         return redirect(url_for('notes'))
 
     return render_template('edit_note.html', note=note)
+
+
+# Updated edit_journal route
+@app.route('/edit_journal/<string:slug>', methods=['GET', 'POST'])
+def edit_journal(slug):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    entry = Journal.query.filter_by(slug=slug).first_or_404()
+
+    if request.method == 'POST':
+        new_name = request.form.get('name')
+        new_entry_text = request.form['entry']
+
+        if new_name and new_name != entry.name:
+            entry.name = new_name
+            entry.slug = Journal.generate_unique_slug(new_name)
+
+        entry.entry = new_entry_text
+        try:
+            db.session.commit()
+            flash('Journal updated successfully!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating journal: {str(e)}', 'danger')
+
+        return redirect(url_for('journal'))
+
+    return render_template('edit_journal.html', entry=entry)
+
 
 
 @app.route('/journal')
@@ -444,25 +483,6 @@ def delete_journal(slug):
     return redirect(url_for('journal'))
 
 
-@app.route('/edit_journal/<string:slug>', methods=['GET', 'POST'])
-def edit_journal(slug):
-    if not session.get('logged_in'):
-        return redirect(url_for('login'))
-
-    entry = Journal.query.filter_by(slug=slug).first_or_404()
-
-    if request.method == 'POST':
-        new_entry_text = request.form['entry']
-        if entry:
-            entry.entry = new_entry_text
-        
-            entry.slug = Journal.generate_unique_slug(entry.name)
-            db.session.commit()
-            flash('Journal updated successfully!', 'success')
-        return redirect(url_for('journal'))
-
-    return render_template('edit_journal.html', entry=entry)
-
 @app.route('/journal/<string:slug>')
 def view_journal(slug):
     if not session.get('logged_in'):
@@ -470,6 +490,10 @@ def view_journal(slug):
 
     entry = Journal.query.filter_by(slug=slug).first_or_404()
     return render_template('view_journal.html', entry=entry)
+
+@app.template_filter('nl2br')
+def nl2br(value):
+    return value.replace('\n', '<br>')
 
 
 if __name__ == '__main__':

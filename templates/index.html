@@ -3,58 +3,65 @@
 {% block title %}Memos{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>New Memo</h1>
-    <form action="{{ url_for('submit') }}" method="POST">
-        <div class="mb-3">
-            <label for="memo" class="form-label">New Memo</label>
-            <textarea id="memo" name="memo" class="form-control" required></textarea>
-        </div>
-
-	<div class="mb-3">
-            <label for="reminder_time" class="form-label">Reminder Time</label>
-            <input type="datetime-local" id="reminder_time" name="reminder_time" class="form-control">
-        </div>
-
-        <input type="submit" value="Submit" class="btn btn-primary">
-    </form>
+<div class="max-w-4xl mx-auto mt-10 px-4">
+  <h1 class="text-3xl font-bold text-orange-500 dark:text-orange-400 mb-6 text-center">New Memo</h1>
+  <form action="{{ url_for('submit') }}" method="POST" class="space-y-6">
+    <div>
+      <label for="memo" class="block mb-2 text-sm font-medium text-white">New Memo</label>
+      <textarea id="memo" name="memo" required rows="3"
+        class="w-full p-3 rounded-md bg-zinc-900 text-white border border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"></textarea>
+    </div>
+    <div>
+      <label for="reminder_time" class="block mb-2 text-sm font-medium text-white">Reminder Time</label>
+      <input type="datetime-local" id="reminder_time" name="reminder_time"
+        class="w-full p-3 rounded-md bg-zinc-900 text-white border border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400">
+    </div>
+    <input type="submit" value="Submit"
+      class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-md transition shadow-md">
+  </form>
 </div>
 
-<div class="container mt-4">
-    <div class="header">
-        <h1>Open Memos</h1>
+<div class="max-w-6xl mx-auto mt-14 px-4">
+  <h2 class="text-2xl font-bold text-orange-500 dark:text-orange-400 text-center mb-6">Open Memos</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for memo in memos %}
+    <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5 shadow">
+      <p class="text-black dark:text-white"><strong>Memo:</strong> {{ memo.memo }}</p>
+      <div class="flex justify-between items-center mt-4">
+        <form action="{{ url_for('delete_memo', memo_id=memo.id) }}" method="POST">
+          <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-1 px-3 rounded-md transition" aria-label="Delete Memo">X</button>
+        </form>
+        <form action="{{ url_for('mark_complete', memo_id=memo.id) }}" method="POST">
+          <button type="submit" class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-1 px-3 rounded-md transition" aria-label="Mark Memo as Complete">✓</button>
+        </form>
+      </div>
     </div>
+    {% endfor %}
+  </div>
 
-    <div class="memo-grid">
-        {% for memo in memos %}
-        <div class="memo-card">
-            <p><strong>Memo:</strong> {{ memo.memo }}</p>
-            <div class="actions d-flex justify-content-between mt-2">
-                <form action="{{ url_for('delete_memo', memo_id=memo.id) }}" method="POST" style="display:inline;">
-                    <button type="submit" class="btn btn-danger btn-sm" aria-label="Delete Memo">X</button>
-                </form>
-                <form action="{{ url_for('mark_complete', memo_id=memo.id) }}" method="POST" style="display:inline;">
-                    <button type="submit" class="btn btn-success btn-sm" aria-label="Mark Memo as Complete">✓</button>
-                </form>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <div class="btn-wrapper text-center mt-4">
-        <a href="{{ url_for('completed_jobs') }}" class="btn btn-secondary">View Completed Memos</a>
-    </div>
+  <div class="text-center mt-10">
+    <a href="{{ url_for('completed_jobs') }}"
+      class="inline-block bg-gray-300 dark:bg-zinc-800 hover:bg-gray-400 dark:hover:bg-zinc-700 text-black dark:text-white font-semibold py-2 px-4 rounded transition">
+      View Completed Memos
+    </a>
+  </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const textarea = document.getElementById('memo');
-        textarea.addEventListener('input', function () {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
-    });
+  document.addEventListener('DOMContentLoaded', function () {
+    const textarea = document.getElementById('memo');
+    if (textarea) {
+      textarea.style.overflow = 'hidden';
+      textarea.style.resize = 'none';
+      const resize = () => {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+      };
+      resize();
+      textarea.addEventListener('input', resize);
+    }
+  });
 </script>
 {% endblock %}

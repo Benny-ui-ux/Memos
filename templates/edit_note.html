@@ -1,115 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <style>
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
+{% extends "base.html" %}
 
-        /* Page Layout */
-        .container {
-            max-width: 600px;
-            margin: 100px auto 30px;
-            padding: 20px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-        }
+{% block title %}Edit Note{% endblock %}
 
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
+{% block content %}
+<div class="max-w-3xl mx-auto mt-10 px-4">
+  <h2 class="text-3xl font-bold text-orange-500 dark:text-orange-400 mb-6 text-center">Edit Note</h2>
 
-        /* Form Styling */
-        .form-label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-            resize: none;
-            min-height: 80px; /* Ensures a decent starting size */
-            overflow-y: hidden; /* Hides the scrollbar */
-        }
-
-        /* Button Styling */
-        .btn {
-            display: inline-block;
-            padding: 12px 20px;
-            font-size: 14px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.3s;
-            text-align: center;
-            text-decoration: none;
-        }
-        .btn:hover {
-            opacity: 0.9;
-        }
-        .btn-save {
-            background-color: #27ae60;
-            color: white;
-        }
-        .btn-cancel {
-            background-color: #e74c3c;
-            color: white;
-        }
-        .btn-wrapper {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-    </style>
-    <title>Edit Note</title>
-</head>
-<body>
-    <div class="container">
-        <h2>Edit Note</h2>
-        <form method="POST">
-            <label class="form-label" for="note">Your Note:</label>
-            <textarea id="note" name="note" rows="5">{{ note.note | safe}}</textarea>
-            <div class="btn-wrapper">
-                <button type="submit" class="btn btn-save">Save Changes</button>
-                <a href="{{ url_for('notes') }}" class="btn btn-cancel">Cancel</a>
-            </div>
-        </form>
+  <form method="POST" class="space-y-6">
+    <div class="relative">
+      <textarea id="note" name="note" required rows="6"
+        class="peer w-full pt-6 pb-2 px-3 rounded-lg bg-zinc-900 text-white border border-orange-400 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none transition-all duration-200">{{ note.note | safe }}</textarea>
+      <label for="note"
+        class="absolute left-3 top-2 text-sm text-orange-300 transition-all duration-200 peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-orange-500 peer-focus:top-2 peer-focus:text-sm peer-focus:text-orange-300">
+        Your Note
+      </label>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const textarea = document.getElementById('note');
+    <div class="flex justify-center gap-4">
+      <button type="submit"
+        class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-md transition shadow-md">
+        Save Changes
+      </button>
+      <a href="{{ url_for('notes') }}"
+        class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-md transition shadow-md">
+        Cancel
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}
 
-            function adjustHeight() {
-                textarea.style.height = 'auto';
-                textarea.style.height = (textarea.scrollHeight) + 'px';
-            }
-
-            textarea.addEventListener('input', adjustHeight);
-
-            
-            adjustHeight();
-        });
-    </script>
-</body>
-</html>
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const textarea = document.getElementById('note');
+    if (textarea) {
+      textarea.style.overflow = 'hidden';
+      textarea.style.resize = 'none';
+      const resize = () => {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+      };
+      resize();
+      textarea.addEventListener('input', resize);
+    }
+  });
+</script>
+{% endblock %}
